@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background: radial-gradient(circle at top center, #ffffff 0%, #F8F6FA 40%, #EDE9FE 100%);
+    background-attachment: fixed;
+    color: #1E1B4B;
+    @apply antialiased selection:bg-brand-200 selection:text-brand-900;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-accent text-accent-foreground hover:bg-accent-hover h-11 px-6 py-2 shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[#EDE9FE] bg-white text-[#1E1B4B] hover:bg-brand-50 h-11 px-6 py-2 shadow-sm;
+  }
+  
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white shadow-card rounded-[24px] transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-card-hover border-white/80 bg-white/80 translate-y-[-2px];
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}

@@ -1,0 +1,86 @@
+-- Agencies/freelancers who sign up
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255),
+    business_name VARCHAR(255),
+    logo_url TEXT,
+    brand_color VARCHAR(10),
+    plan VARCHAR(20) DEFAULT 'free', -- 'free', 'starter', 'pro'
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Clients belonging to an agency
+CREATE TABLE IF NOT EXISTS clients (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255),
+    phone VARCHAR(20),
+    email VARCHAR(255),
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Reusable request templates
+CREATE TABLE IF NOT EXISTS templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255), -- e.g. "Website Onboarding Pack"
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Individual items within a template (the checklist definition)
+CREATE TABLE IF NOT EXISTS template_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    template_id UUID REFERENCES templates(id) ON DELETE CASCADE,
+    item_type VARCHAR(20), -- 'text', 'file', 'yes_no', 'dropdown'
+    label VARCHAR(255),
+    options JSONB, -- for dropdowns; conditional logic config (Phase 2)
+    display_order INT
+);
+
+-- A live request sent to a specific client
+CREATE TABLE IF NOT EXISTS requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    client_id UUID REFERENCES clients(id),
+    template_id UUID REFERENCES templates(id), -- nullable if built from scratch
+    unique_link_slug VARCHAR(50) UNIQUE NOT NULL,
+    status VARCHAR(20) DEFAULT 'in_progress', -- 'in_progress', 'submitted', 'completed'
+    last_reminder_sent_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT now(),
+    completed_at TIMESTAMP
+);
+
+-- Individual items within a live request (copied from template + client's answers)
+CREATE TABLE IF NOT EXISTS request_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
+    item_type VARCHAR(20),
+    label VARCHAR(255),
+    text_answer TEXT,
+    file_url TEXT, -- Supabase Storage URL
+    status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'submitted', 'approved', 'rejected'
+    rejection_note TEXT,
+    display_order INT,
+    updated_at TIMESTAMP DEFAULT now()
+);
+
+-- Comments/questions on a specific item
+CREATE TABLE IF NOT EXISTS item_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_item_id UUID REFERENCES request_items(id) ON DELETE CASCADE,
+    author VARCHAR(20), -- 'agency' or 'client'
+    message TEXT,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Subscriptions/billing
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    razorpay_subscription_id VARCHAR(100),
+    plan VARCHAR(20),
+    status VARCHAR(20),
+    current_period_end TIMESTAMP,
+    created_at TIMESTAMP DEFAULT now()
+);

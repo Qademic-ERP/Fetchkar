@@ -1,0 +1,13 @@
+package fetchkar_backend;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class FetchkarBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

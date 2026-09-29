@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.env
+.env.local
+.DS_Store
+
+# Spring Boot / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.log
+
+# IntelliJ IDEA / Eclipse / VS Code
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+.vscode/
+
+# Build artifacts
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
