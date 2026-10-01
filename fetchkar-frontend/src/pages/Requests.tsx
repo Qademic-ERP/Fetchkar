@@ -130,7 +130,12 @@ export default function Requests() {
                     key={req.id} 
                     className="hover:bg-muted/50 cursor-pointer transition-colors"
                   >
-                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">`n                        <div className="flex flex-col">`n                          <span>{req.requestName}</span>`n                          <span className="text-xs text-muted-foreground font-medium">{req.client}</span>`n                        </div>`n                      </td>
+                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">
+                        <div className="flex flex-col">
+                          <span>{req.requestName}</span>
+                          <span className="text-xs text-muted-foreground font-medium">{req.client}</span>
+                        </div>
+                      </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm font-medium text-muted-foreground">{req.template}</td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm">
                       <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold border ${
