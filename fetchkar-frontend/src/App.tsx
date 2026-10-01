@@ -11,10 +11,12 @@ import Onboarding from './pages/Onboarding';
 
 import Requests from './pages/Requests';
 import Clients from './pages/Clients';
+import ClientDetail from './pages/ClientDetail';
 import Analytics from './pages/Analytics';
 import Templates from './pages/Templates';
 import WallsManager from './pages/WallsManager';
 import Wall from './pages/Wall';
+import WallConfig from './pages/WallConfig';
 import WidgetDemo from './pages/WidgetDemo';
 import BulkRequest from './pages/BulkRequest';
 
@@ -52,9 +54,10 @@ function App() {
           <Route path="requests/new" element={<RequestBuilder />} />
           <Route path="requests/bulk" element={<BulkRequest />} />
           <Route path="requests/review/:id" element={<RequestReview />} />
-          <Route path="clients" element={<Clients />} />
+          <Route path="clients" element={<Clients />} />`n          <Route path="clients/:id" element={<ClientDetail />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="walls" element={<WallsManager />} />
+          <Route path="walls/:id" element={<WallConfig />} />
           <Route path="settings" element={<Settings />} />
         </Route>
         

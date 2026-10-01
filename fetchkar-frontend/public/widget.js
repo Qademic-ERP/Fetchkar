@@ -1,16 +1,19 @@
 (function() {
-  // ClientPing Embeddable Carousel Widget
-  // Usage: <script src="widget.js" data-wall="aditi-design"></script><div id="clientping-carousel"></div>
+  // ClientPing Embeddable Widgets
+  // Usage: <script src="widget.js" data-wall="aditi-design" data-layout="grid"></script><div id="clientping-widget"></div>
 
   const scriptTag = document.currentScript;
-  // const wallSlug = scriptTag.getAttribute('data-wall') || 'default';
+  const layout = scriptTag.getAttribute('data-layout') || 'carousel';
   
   // Find or create the mount point
-  let container = document.getElementById('clientping-carousel');
-  if (!container) {
+  let container = document.getElementById('clientping-widget') || document.getElementById('clientping-carousel');
+  if (!container && layout !== 'badge' && layout !== 'toast') {
     container = document.createElement('div');
-    container.id = 'clientping-carousel';
+    container.id = 'clientping-widget';
     scriptTag.parentNode.insertBefore(container, scriptTag.nextSibling);
+  } else if (layout === 'badge' || layout === 'toast') {
+    container = document.createElement('div');
+    document.body.appendChild(container);
   }
 
   // Inject scoped CSS
@@ -18,148 +21,157 @@
   style.innerHTML = `
     .cp-widget-wrapper {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      max-width: 100%;
-      margin: 0 auto;
-      overflow: hidden;
-      padding: 20px 0;
       box-sizing: border-box;
+      color: #0f172a;
     }
-    .cp-carousel-track {
-      display: flex;
-      gap: 24px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 10px 20px;
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
-    }
-    .cp-carousel-track::-webkit-scrollbar {
-      display: none; /* Chrome, Safari and Opera */
-    }
+    .cp-widget-wrapper * { box-sizing: border-box; }
+    
+    /* Base Card */
     .cp-card {
-      scroll-snap-align: center;
-      flex: 0 0 320px;
-      background: #ffffff;
+      background: white;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      box-sizing: border-box;
-      transition: transform 0.2s;
-    }
-    .cp-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    .cp-stars {
-      color: #fbbf24;
-      font-size: 18px;
-      margin-bottom: 12px;
-      letter-spacing: 2px;
-    }
-    .cp-content {
-      font-size: 15px;
-      color: #334155;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      font-weight: 500;
-    }
-    .cp-author-row {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       display: flex;
-      align-items: center;
-      gap: 12px;
-      border-top: 1px solid #f1f5f9;
-      padding-top: 16px;
+      flex-direction: column;
+      gap: 16px;
     }
-    .cp-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #e0e7ff;
-      color: #4338ca;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
+    .cp-stars { color: #f59e0b; font-size: 18px; }
+    .cp-content { font-size: 15px; line-height: 1.5; color: #334155; flex-grow: 1; }
+    .cp-author { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .cp-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+    .cp-author-info div:first-child { font-weight: 700; font-size: 14px; }
+    .cp-author-info div:last-child { font-size: 12px; color: #64748b; }
+
+    /* Carousel */
+    .cp-carousel-track {
+      display: flex; gap: 24px; overflow-x: auto; padding: 20px 4px; scroll-snap-type: x mandatory;
+      -ms-overflow-style: none; scrollbar-width: none;
     }
-    .cp-author-info {
-      flex: 1;
+    .cp-carousel-track::-webkit-scrollbar { display: none; }
+    .cp-carousel-item { flex: 0 0 320px; scroll-snap-align: start; }
+    
+    /* Grid */
+    .cp-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; padding: 20px 0;
     }
-    .cp-author-name {
-      font-weight: 700;
-      color: #0f172a;
-      font-size: 14px;
-      margin: 0 0 2px 0;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    
+    /* Hero */
+    .cp-hero .cp-card {
+      max-width: 800px; margin: 0 auto; text-align: center; padding: 48px; border-radius: 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); border: none; box-shadow: 0 10px 25px -5px rgba(79,70,229,0.1);
     }
-    .cp-author-role {
-      font-size: 12px;
-      color: #64748b;
-      margin: 0;
-    }
+    .cp-hero .cp-content { font-size: 24px; font-weight: 500; font-style: italic; color: #1e293b; margin-bottom: 24px;}
+    .cp-hero .cp-author { flex-direction: column; gap: 8px; }
+    .cp-hero .cp-avatar { width: 64px; height: 64px; font-size: 24px; margin: 0 auto;}
+
+    /* Badge */
     .cp-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      background: #10b981;
-      border-radius: 50%;
-      color: white;
+      position: fixed; bottom: 24px; left: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 100px;
+      padding: 8px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      z-index: 9999; cursor: pointer; transition: transform 0.2s; font-size: 14px; font-weight: 600;
     }
-    .cp-badge svg {
-      width: 8px;
-      height: 8px;
+    .cp-badge:hover { transform: translateY(-2px); }
+    .cp-badge .cp-stars { font-size: 14px; margin-right: 4px; }
+    
+    /* Toast */
+    .cp-toast {
+      position: fixed; bottom: 24px; right: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 16px; width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); z-index: 9999;
+      animation: cp-slide-up 0.5s ease-out; cursor: pointer;
     }
+    .cp-toast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .cp-toast-title { font-size: 12px; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cp-toast .cp-content { font-size: 14px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cp-toast .cp-author { margin-top: 0; }
+    .cp-toast .cp-avatar { width: 32px; height: 32px; font-size: 12px; }
+    @keyframes cp-slide-up { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   `;
   document.head.appendChild(style);
 
-  // Normally we would fetch this from the backend using the wallSlug:
-  // fetch(`https://api.clientping.in/v1/widgets/${wallSlug}`).then(...)
-  const mockData = [
-    {
-      author: 'Rahul Sharma',
-      role: 'Founder, Techflow',
-      stars: 5,
-      content: "Working with Aditi was an absolute game changer for us. The new website is converting at 3x our old rate."
-    },
-    {
-      author: 'Priya Patel',
-      role: 'Creative Director',
-      stars: 5,
-      content: "The smoothest onboarding I have ever experienced. I knew exactly what assets I needed to provide."
-    },
-    {
-      author: 'Karan Singh',
-      role: 'CEO, Elevate',
-      stars: 4,
-      content: "Amazing attention to detail. Would highly recommend to any small business looking to upgrade their brand."
-    }
+  // Mock Data
+  const testimonials = [
+    { author: 'Rahul Sharma', role: 'Founder, Techflow', stars: 5, content: 'Working with Aditi was an absolute game changer for us. The new website is converting at 3x our old rate, and the entire process was seamless from start to finish.' },
+    { author: 'Vikram Singh', role: 'CMO, Elevate', stars: 5, content: 'The branding they delivered perfectly captures our vision. We have received countless compliments from our customers.' },
+    { author: 'Priya Patel', role: 'Creative Director', stars: 5, content: 'A truly exceptional agency partner. Fast, reliable, and incredibly talented.' },
+    { author: 'Neha Gupta', role: 'CEO, Brightly', stars: 5, content: 'They understood our needs immediately and executed flawlessly. Highly recommended!' },
   ];
 
-  const checkIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  function renderStars(count) {
+    return '<span class="cp-stars">' + '★'.repeat(count) + '</span>';
+  }
 
-  // Render HTML
-  container.innerHTML = `
-    <div class="cp-widget-wrapper">
-      <div class="cp-carousel-track">
-        ${mockData.map(t => `
-          <div class="cp-card">
-            <div class="cp-stars">${'★'.repeat(t.stars)}${'☆'.repeat(5 - t.stars)}</div>
-            <div class="cp-content">"${t.content}"</div>
-            <div class="cp-author-row">
-              <div class="cp-avatar">${t.author.charAt(0)}</div>
-              <div class="cp-author-info">
-                <p class="cp-author-name">${t.author} <span class="cp-badge">${checkIcon}</span></p>
-                <p class="cp-author-role">${t.role}</p>
-              </div>
-            </div>
+  function renderCard(t, className = '') {
+    return `
+      <div class="cp-card ${className}">
+        ${renderStars(t.stars)}
+        <div class="cp-content">"${t.content}"</div>
+        <div class="cp-author">
+          <div class="cp-avatar">${t.author.charAt(0)}</div>
+          <div class="cp-author-info">
+            <div>${t.author}</div>
+            <div>${t.role}</div>
           </div>
-        `).join('')}
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  }
+
+  // Render Logic
+  let html = `<div class="cp-widget-wrapper">`;
+
+  if (layout === 'grid') {
+    html += `<div class="cp-grid">${testimonials.map(t => renderCard(t)).join('')}</div>`;
+  } 
+  else if (layout === 'hero') {
+    html += `<div class="cp-hero">${renderCard(testimonials[0])}</div>`;
+  }
+  else if (layout === 'badge') {
+    html += `
+      <div class="cp-badge">
+        <div>${renderStars(5)}</div>
+        <div>Trusted by 50+ amazing clients</div>
+      </div>
+    `;
+  }
+  else if (layout === 'toast') {
+    const t = testimonials[Math.floor(Math.random() * testimonials.length)];
+    html += `
+      <div class="cp-toast">
+        <div class="cp-toast-header">
+          <div class="cp-toast-title">New 5-Star Review</div>
+          <div style="color: #94a3b8; font-size: 16px;">×</div>
+        </div>
+        ${renderStars(t.stars)}
+        <div class="cp-content" style="margin-top: 8px;">"${t.content}"</div>
+        <div class="cp-author">
+          <div class="cp-avatar">${t.author.charAt(0)}</div>
+          <div class="cp-author-info">
+            <div>${t.author}</div>
+            <div>${t.role}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  else {
+    // default carousel
+    html += `
+      <div class="cp-carousel-track">
+        ${testimonials.map(t => renderCard(t, 'cp-carousel-item')).join('')}
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // Add click to dismiss for toast
+  if (layout === 'toast') {
+    container.querySelector('.cp-toast').addEventListener('click', function() {
+      this.style.display = 'none';
+    });
+  }
+
 })();

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { UploadCloud, Check, MessageSquare, Send, CheckCircle2, Star, Mic, Video, Type, Square, RotateCcw,  } from 'lucide-react';
+import { UploadCloud, Check, MessageSquare, Send, CheckCircle2, Star, Mic, Video, Type, Square, RotateCcw, PenTool } from 'lucide-react';
 
 function TestimonialInput({ item }: { item: any }) {
   const [stars, setStars] = useState(0);
@@ -205,14 +205,20 @@ export default function ClientPage() {
   const total = 6;
 
   const agencyName = "Aditi Design Co.";
-  const items = [
+  const [items, setItems] = useState<any[]>([
     { id: '1', type: 'text', label: 'Company Name', status: 'completed', value: 'Acme Corp' },
     { id: '2', type: 'file', label: 'Company Logo (High-Res PNG or SVG)', status: 'completed', value: 'acme-logo.svg' },
     { id: '3', type: 'text', label: 'About Us / Brand Story', status: 'pending', value: '' },
-    { id: '7', type: 'testimonial', label: 'Could you share a quick review of your experience working with us?', status: 'pending', config: { stars: 'required' } },
-    { id: '4', type: 'yes_no', label: 'Do you have an existing domain name?', status: 'pending', value: null },
-    { id: '6', type: 'dropdown', label: 'What is your preferred project timeline?', status: 'pending', value: null }
-  ];
+    { id: '8', type: 'signature', label: 'Master Services Agreement', status: 'pending', value: '' },
+    { id: '4', type: 'yes_no', label: 'Do you have an existing domain name?', status: 'pending', value: '' },
+    { id: '5', type: 'text', label: 'What is the domain name?', status: 'pending', value: '', config: { condition: { dependsOnId: '4', expectedValue: 'Yes' } } },
+    { id: '6', type: 'dropdown', label: 'What is your preferred project timeline?', status: 'pending', value: '', config: { options: ['1-2 weeks', '1 month', '3+ months'] } },
+    { id: '7', type: 'testimonial', label: 'Could you share a quick review of your experience working with us?', status: 'pending', config: { stars: 'required' } }
+  ]);
+
+  const handleUpdateValue = (id: string, val: string) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, value: val } : item));
+  };
 
   const percentage = (completed / total) * 100;
 
@@ -268,7 +274,15 @@ export default function ClientPage() {
 
         {/* Main Checklist */}
         <main className="space-y-6">
-          {items.map((item, idx) => (
+          {items.map((item, idx) => {
+            if (item.config?.condition) {
+              const dependency = items.find(i => i.id === item.config?.condition?.dependsOnId);
+              if (dependency?.value !== item.config?.condition?.expectedValue) {
+                return null;
+              }
+            }
+            return (
+
             <div key={item.id} className={`bg-white border rounded-2xl p-6 md:p-8 transition-all duration-300 ${
               item.status === 'completed' 
                 ? 'border-emerald-100 bg-emerald-50/10 shadow-sm' 
@@ -287,7 +301,49 @@ export default function ClientPage() {
                   <label className="text-lg md:text-xl font-bold text-slate-900 leading-snug">
                     {item.label}
                   </label>
-                  {item.type === 'testimonial' && (
+                                  {item.type === 'signature' && (
+                  <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                    {/* Mock PDF Viewer */}
+                    <div className="bg-slate-100 p-8 flex items-center justify-center border-b border-slate-200 min-h-[300px]">
+                       <div className="bg-white w-full max-w-md shadow-md aspect-[1/1.4] p-8 text-center flex flex-col justify-between">
+                         <div className="text-slate-300">
+                           <div className="h-4 bg-slate-100 rounded w-3/4 mb-4 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-2"></div>
+                           <div className="h-3 bg-slate-100 rounded w-5/6 mb-2 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-8"></div>
+                           <div className="h-3 bg-slate-100 rounded w-4/5 mb-2 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-2"></div>
+                         </div>
+                         <div className="border-t-2 border-slate-800 border-dashed pt-2 mt-12 text-left">
+                           <span className="text-[10px] uppercase font-bold text-slate-400">Client Signature</span>
+                           {item.value ? (
+                             <div className="text-3xl text-indigo-700 mt-2" style={{ fontFamily: "'Brush Script MT', 'Comic Sans MS', cursive" }}>{item.value}</div>
+                           ) : (
+                             <div className="h-10"></div>
+                           )}
+                         </div>
+                       </div>
+                    </div>
+                    {/* Sign Input */}
+                    <div className="p-6 bg-white flex flex-col sm:flex-row gap-4 items-center">
+                       <div className="flex-1 w-full relative">
+                         <PenTool size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500" />
+                         <input 
+                           type="text"
+                           value={item.value || ''}
+                           onChange={(e) => handleUpdateValue(item.id, e.target.value)}
+                           placeholder="Type your full name to sign..."
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                           style={{ fontFamily: item.value ? "'Brush Script MT', 'Comic Sans MS', cursive" : "inherit" }}
+                         />
+                       </div>
+                       <div className="text-xs font-medium text-slate-400 text-center sm:text-right">
+                         By typing your name,<br/>you agree to sign this document legally.
+                       </div>
+                    </div>
+                  </div>
+                )}
+                {item.type === 'testimonial' && (
                     <p className="text-sm text-slate-500 mt-2">You can type it out, or record a quick voice or video note below.</p>
                   )}
                 </div>
@@ -352,32 +408,67 @@ export default function ClientPage() {
                   )
                 )}
 
-                {item.type === 'yes_no' && (
+                                {item.type === 'yes_no' && (
                   <div className="flex items-center gap-4">
-                    <button className="flex-1 py-4 px-4 bg-white/40 border border-slate-200 shadow-sm rounded-xl text-base font-bold text-slate-700 hover:border-indigo-500 hover:text-accent hover:bg-brand-50 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                      Yes
-                    </button>
-                    <button className="flex-1 py-4 px-4 bg-white/40 border border-slate-200 shadow-sm rounded-xl text-base font-bold text-slate-700 hover:border-indigo-500 hover:text-accent hover:bg-brand-50 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                      No
-                    </button>
+                    <button onClick={() => handleUpdateValue(item.id, 'Yes')} className={`flex-1 py-4 px-4 bg-white/40 border shadow-sm rounded-xl text-base font-bold transition-all ${item.value === 'Yes' ? 'border-indigo-500 text-indigo-700 bg-brand-50' : 'border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-accent hover:bg-brand-50'}`}>Yes</button>
+                    <button onClick={() => handleUpdateValue(item.id, 'No')} className={`flex-1 py-4 px-4 bg-white/40 border shadow-sm rounded-xl text-base font-bold transition-all ${item.value === 'No' ? 'border-indigo-500 text-indigo-700 bg-brand-50' : 'border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-accent hover:bg-brand-50'}`}>No</button>
                   </div>
                 )}
 
-                {item.type === 'dropdown' && (
+                                {item.type === 'dropdown' && (
                   <div className="relative">
-                    <select className="w-full appearance-none bg-white/40 border border-slate-200 shadow-sm rounded-xl px-5 py-4 text-base font-medium text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer hover:border-slate-300">
+                    <select value={item.value || ''} onChange={(e) => handleUpdateValue(item.id, e.target.value)} className="w-full appearance-none bg-white/40 border border-slate-200 shadow-sm rounded-xl px-5 py-4 text-base font-medium text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer hover:border-slate-300">
                       <option value="" disabled selected>Select an option...</option>
-                      <option value="1">Option 1</option>
-                      <option value="2">Option 2</option>
+                      {item.config?.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>) || <>
+                        <option value="Option 1">Option 1</option>
+                        <option value="Option 2">Option 2</option>
+                      </>}
                     </select>
-                    <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none">
-                      <svg width="14" height="10" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 1.5L6 6.5L11 1.5" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
                   </div>
                 )}
                 
+                                {item.type === 'signature' && (
+                  <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                    {/* Mock PDF Viewer */}
+                    <div className="bg-slate-100 p-8 flex items-center justify-center border-b border-slate-200 min-h-[300px]">
+                       <div className="bg-white w-full max-w-md shadow-md aspect-[1/1.4] p-8 text-center flex flex-col justify-between">
+                         <div className="text-slate-300">
+                           <div className="h-4 bg-slate-100 rounded w-3/4 mb-4 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-2"></div>
+                           <div className="h-3 bg-slate-100 rounded w-5/6 mb-2 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-8"></div>
+                           <div className="h-3 bg-slate-100 rounded w-4/5 mb-2 mx-auto"></div>
+                           <div className="h-3 bg-slate-100 rounded w-full mb-2"></div>
+                         </div>
+                         <div className="border-t-2 border-slate-800 border-dashed pt-2 mt-12 text-left">
+                           <span className="text-[10px] uppercase font-bold text-slate-400">Client Signature</span>
+                           {item.value ? (
+                             <div className="text-3xl text-indigo-700 mt-2" style={{ fontFamily: "'Brush Script MT', 'Comic Sans MS', cursive" }}>{item.value}</div>
+                           ) : (
+                             <div className="h-10"></div>
+                           )}
+                         </div>
+                       </div>
+                    </div>
+                    {/* Sign Input */}
+                    <div className="p-6 bg-white flex flex-col sm:flex-row gap-4 items-center">
+                       <div className="flex-1 w-full relative">
+                         <PenTool size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500" />
+                         <input 
+                           type="text"
+                           value={item.value || ''}
+                           onChange={(e) => handleUpdateValue(item.id, e.target.value)}
+                           placeholder="Type your full name to sign..."
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                           style={{ fontFamily: item.value ? "'Brush Script MT', 'Comic Sans MS', cursive" : "inherit" }}
+                         />
+                       </div>
+                       <div className="text-xs font-medium text-slate-400 text-center sm:text-right">
+                         By typing your name,<br/>you agree to sign this document legally.
+                       </div>
+                    </div>
+                  </div>
+                )}
                 {item.type === 'testimonial' && (
                   <TestimonialInput item={item} />
                 )}
@@ -398,7 +489,8 @@ export default function ClientPage() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
 
           <div className="pt-12 flex justify-end">
             <button className="btn-primary px-10 py-4 text-lg rounded-2xl shadow-lg shadow-indigo-600/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-600/30 transition-all">

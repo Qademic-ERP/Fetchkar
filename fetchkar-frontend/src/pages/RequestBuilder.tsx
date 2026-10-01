@@ -1,8 +1,22 @@
-import { useState } from 'react'; import type { ReactNode } from 'react';
-import { GripVertical, Trash2, Send, Type, Image, ToggleLeft, Settings2, AlignLeft, Calendar, Link as LinkIcon, CheckSquare, Star, MessageSquareQuote } from 'lucide-react';
+import { useState, useEffect } from 'react'; import type { ReactNode } from 'react';
+import { GripVertical, Trash2, Send, Type, Image, ToggleLeft, Settings2, AlignLeft, Calendar, Link as LinkIcon, CheckSquare, Star, MessageSquareQuote , PenTool } from 'lucide-react';
+import { apiClient } from '../api/client';
+import { useNavigate } from 'react-router-dom';
 
 export default function RequestBuilder() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('Website Onboarding Pack');
+  const [clientName, setClientName] = useState('');
+    const [requestName, setRequestName] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [userEditedName, setUserEditedName] = useState(false);
+  
+  useEffect(() => {
+    if (!userEditedName && clientName) {
+      setRequestName(`${title} - ${clientName}`);
+    }
+  }, [title, clientName, userEditedName]);
+
   const [items, setItems] = useState<any[]>([
     { id: '1', type: 'text', label: 'Company Name', config: {} },
     { id: '2', type: 'file', label: 'Company Logo (High-Res PNG or SVG)', config: {} }
@@ -33,7 +47,8 @@ export default function RequestBuilder() {
     checkboxes: <CheckSquare size={16} className="text-fuchsia-500" />,
     date: <Calendar size={16} className="text-rose-500" />,
     url: <LinkIcon size={16} className="text-cyan-500" />,
-    testimonial: <MessageSquareQuote size={16} className="text-orange-500" />
+    testimonial: <MessageSquareQuote size={16} className="text-orange-500" />,
+      signature: <PenTool size={16} className="text-slate-600" />
   };
 
   const colorMap: Record<string, string> = {
@@ -45,7 +60,36 @@ export default function RequestBuilder() {
     checkboxes: 'bg-fuchsia-50 border-fuchsia-100 text-fuchsia-700',
     date: 'bg-rose-50 border-rose-100 text-rose-700',
     url: 'bg-cyan-50 border-cyan-100 text-cyan-700',
-    testimonial: 'bg-orange-50 border-orange-100 text-orange-700'
+    testimonial: 'bg-orange-50 border-orange-100 text-orange-700',
+      signature: 'bg-slate-100 border-slate-200 text-slate-800'
+  };
+
+  const handleGenerateLink = async (btn: HTMLButtonElement) => {
+    if (!clientName) {
+      alert("Please enter a Client Name");
+      return;
+    }
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
+    try {
+      await apiClient('/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          clientName: clientName,
+          requestName: requestName,
+          templateName: title,
+          tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean)
+        })
+      });
+      btn.innerHTML = '<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Link Generated!</span>';
+      setTimeout(() => {
+        btn.innerHTML = original;
+        navigate('/requests');
+      }, 1500);
+    } catch (e) {
+      alert("Error saving request");
+      btn.innerHTML = original;
+    }
   };
 
   return (
@@ -76,12 +120,7 @@ export default function RequestBuilder() {
             Preview
           </button>
           <button 
-            onClick={(e) => {
-              const btn = e.currentTarget;
-              const original = btn.innerHTML;
-              btn.innerHTML = '<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Link Copied!</span>';
-              setTimeout(() => btn.innerHTML = original, 2000);
-            }}
+            onClick={(e) => handleGenerateLink(e.currentTarget)}
             className="btn-primary gap-2 shadow-lg shadow-indigo-600/20"
           >
             <Send size={16} />
@@ -89,6 +128,42 @@ export default function RequestBuilder() {
           </button>
         </div>
       </header>
+      
+      <div className="glass-card p-6 flex flex-col sm:flex-row gap-6 bg-white/60">
+        <div className="flex-1">
+          <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Client Name <span className="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+            className="w-full px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+            placeholder="e.g. Acme Corp"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Request Name <span className="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            value={requestName}
+            onChange={(e) => {
+              setRequestName(e.target.value);
+              setUserEditedName(true);
+            }}
+            className="w-full px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+            placeholder="e.g. Website Onboarding - Acme Corp"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Tags</label>
+          <input 
+            type="text" 
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            className="w-full px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+            placeholder="e.g. Q1, Redesign (comma separated)"
+          />
+        </div>
+      </div>
 
       <div className="space-y-4">
         {items.map((item, index) => (
@@ -189,9 +264,12 @@ export default function RequestBuilder() {
           <button onClick={() => addItem('date')} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-border text-foreground rounded-xl text-sm font-bold hover:border-rose-300 hover:text-rose-700 hover:bg-rose-50 shadow-sm transition-all hover:-translate-y-0.5">
             <Calendar size={16} className="text-rose-500" /> Date
           </button>
-          <button onClick={() => addItem('url')} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-border text-foreground rounded-xl text-sm font-bold hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50 shadow-sm transition-all hover:-translate-y-0.5">
-            <LinkIcon size={16} className="text-cyan-500" /> URL
-          </button>
+                      <button onClick={() => addItem('url')} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-border text-foreground rounded-xl text-sm font-bold hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50 shadow-sm transition-all hover:-translate-y-0.5">
+              <LinkIcon size={16} className="text-cyan-500" /> URL
+            </button>
+            <button onClick={() => addItem('signature')} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-border text-foreground rounded-xl text-sm font-bold hover:border-slate-400 hover:text-slate-800 hover:bg-slate-50 shadow-sm transition-all hover:-translate-y-0.5">
+              <PenTool size={16} className="text-slate-600" /> E-Signature
+            </button>
         </div>
         <div className="w-full pt-4 mt-2 border-t border-border/60">
           <button onClick={() => addItem('testimonial')} className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5">

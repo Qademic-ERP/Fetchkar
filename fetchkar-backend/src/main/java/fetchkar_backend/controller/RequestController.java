@@ -27,8 +27,10 @@ public class RequestController {
             Map<String, Object> map = new HashMap<>();
             map.put("id", req.getId() != null ? req.getId().toString() : "");
             map.put("client", req.getClient() != null ? req.getClient().getName() : "Unknown Client");
+            map.put("requestName", req.getRequestName() != null ? req.getRequestName() : "Unnamed Request");
             map.put("template", req.getTemplate() != null ? req.getTemplate().getName() : "Custom Template");
             map.put("status", req.getStatus() != null ? req.getStatus() : "In Progress");
+            map.put("tags", req.getTags() != null ? java.util.Arrays.asList(req.getTags().split(",")) : new java.util.ArrayList<String>());
             map.put("progress", 0);
             map.put("updated", "Just now");
             return map;
@@ -36,8 +38,8 @@ public class RequestController {
 
         // Return mock data if empty for demo purposes
         if (response.isEmpty()) {
-            response.add(Map.of("id", "1", "client", "Acme Corp (Mock)", "template", "Website Onboarding", "status", "In Progress", "progress", 60, "updated", "2 hours ago"));
-            response.add(Map.of("id", "2", "client", "Stark Industries (Mock)", "template", "Brand Assets", "status", "In Progress", "progress", 20, "updated", "4 days ago"));
+            response.add(Map.of("id", "1", "client", "Acme Corp", "requestName", "Website Onboarding - Acme Corp", "template", "Website Onboarding", "status", "In Progress", "tags", List.of("Website", "Q1"), "progress", 60, "updated", "2 hours ago"));
+            response.add(Map.of("id", "2", "client", "Stark Industries", "requestName", "Brand Assets - Stark Industries", "template", "Brand Assets", "status", "In Progress", "tags", List.of("Branding"), "progress", 20, "updated", "4 days ago"));
         }
 
         return ResponseEntity.ok(response);
@@ -48,6 +50,13 @@ public class RequestController {
         Request request = new Request();
         request.setUniqueLinkSlug("req-" + System.currentTimeMillis());
         request.setStatus("In Progress");
+        if (payload.containsKey("requestName")) {
+            request.setRequestName((String) payload.get("requestName"));
+        }
+        if (payload.containsKey("tags")) {
+            List<String> tagsList = (List<String>) payload.get("tags");
+            request.setTags(String.join(",", tagsList));
+        }
         
         Request saved = requestRepository.save(request);
         return ResponseEntity.ok(saved);

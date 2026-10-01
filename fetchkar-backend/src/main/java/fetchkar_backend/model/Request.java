@@ -15,12 +15,18 @@ public class Request {
     private Client client;
     @ManyToOne @JoinColumn(name = "template_id")
     private Template template;
+    private String requestName;
     private String uniqueLinkSlug;
     private String status;
+    private String tags;
     private LocalDateTime lastReminderSentAt;
     private LocalDateTime createdAt;
     private LocalDateTime completedAt;
     // getters and setters
+    public String getTags() { return tags; }
+    public void setTags(String tags) { this.tags = tags; }
+    public String getRequestName() { return requestName; }
+    public void setRequestName(String requestName) { this.requestName = requestName; }
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public User getUser() { return user; }

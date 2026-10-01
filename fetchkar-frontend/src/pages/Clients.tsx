@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, MoreHorizontal } from 'lucide-react';
 
 
 export default function ClientsDirectory() {
-  const [clients, setClients] = useState<any[]>([]); useEffect(() => { apiClient('/clients').then(setClients).catch(() => setClients([ 
+  const navigate = useNavigate();
+  const [clients, setClients] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState(''); useEffect(() => { apiClient('/clients').then(setClients).catch(() => setClients([ 
     { id: '1', name: 'Rahul Sharma', email: 'rahul@example.com', phone: '+91 98765 43210', requests: 3, status: 'Active' },
     { id: '2', name: 'Priya Patel', email: 'priya@example.com', phone: '+91 98765 43211', requests: 1, status: 'Completed' },
     { id: '3', name: 'Vikram Singh', email: 'vikram@example.com', phone: '+91 98765 43212', requests: 5, status: 'Active' },
@@ -34,7 +36,7 @@ export default function ClientsDirectory() {
             <div className="relative flex-1 w-full">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input 
-                type="text" 
+                type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} 
                 placeholder="Search by name, email, or phone..." 
                 className="w-full pl-10 pr-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"
               />
@@ -58,8 +60,8 @@ export default function ClientsDirectory() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {clients.map(client => (
-                  <tr key={client.id} className="hover:bg-muted/50 transition-colors">
+                {clients.filter(client => !searchQuery || client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.email.toLowerCase().includes(searchQuery.toLowerCase())).map(client => (
+                  <tr key={client.id} className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
                     <td className="whitespace-nowrap py-5 pl-6 pr-3">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold border border-brand-200">

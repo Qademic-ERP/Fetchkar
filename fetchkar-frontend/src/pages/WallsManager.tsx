@@ -5,9 +5,11 @@ import { Plus, LayoutTemplate, Settings2, ExternalLink, Globe } from 'lucide-rea
 
 
 export default function WallsManager() {
-  const [walls, setWalls] = useState<any[]>([]); useEffect(() => { apiClient('/walls').then(setWalls).catch(() => setWalls([
-    { id: '1', name: 'Main Agency Wall', slug: 'aditi-design', testimonials: 24, views: 1240, status: 'Live' },
-    { id: '2', name: 'Course Students', slug: 'ui-course', testimonials: 8, views: 300, status: 'Draft' },
+  const [walls, setWalls] = useState<any[]>([]); 
+  const [tagFilter, setTagFilter] = useState('All');
+  useEffect(() => { apiClient('/walls').then(setWalls).catch(() => setWalls([
+    { id: '1', name: 'Main Agency Wall', slug: 'aditi-design', testimonials: 24, views: 1240, status: 'Live', tags: ['Website'] },
+    { id: '2', name: 'Course Students', slug: 'ui-course', testimonials: 8, views: 300, status: 'Draft', tags: ['Course'] },
   ])); }, []);
 
   return (
@@ -20,6 +22,16 @@ export default function WallsManager() {
             <p className="text-base text-muted-foreground font-medium">Curate and publish your best client testimonials to public walls or embeddable widgets.</p>
           </div>
           <div className="mt-4 flex gap-3 md:ml-4 md:mt-0">
+            <select 
+              value={tagFilter} 
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="All">All Tags</option>
+              {Array.from(new Set(walls.flatMap(w => w.tags || []))).map(tag => (
+                <option key={tag as string} value={tag as string}>{tag}</option>
+              ))}
+            </select>
             <Link to="/widget-demo" className="btn-secondary">
               <LayoutTemplate className="-ml-0.5 mr-2 h-4 w-4" />
               Embed Widgets
@@ -32,7 +44,7 @@ export default function WallsManager() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {walls.map(wall => (
+          {walls.filter(w => tagFilter === 'All' || (w.tags && w.tags.includes(tagFilter))).map(wall => (
             <div key={wall.id} className="glass-card p-0 flex flex-col overflow-hidden">
               <div className="p-8 pb-6 flex-1">
                 <div className="flex justify-between items-start mb-6">
@@ -69,9 +81,9 @@ export default function WallsManager() {
               </div>
 
               <div className="bg-white/50 border-t border-border/50 p-4 px-8 flex justify-end gap-3">
-                <button className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2" onClick={() => alert('Configure wall...')}>
+                <Link to={`/walls/${wall.id}`} className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
                   <Settings2 size={16} /> Configure Wall
-                </button>
+                </Link>
               </div>
             </div>
           ))}

@@ -1,21 +1,27 @@
-import { Plus, Search, Filter, Loader2 } from 'lucide-react';
+import { Plus, Search, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 
 interface RequestModel {
   id: string;
-  client: string; // We'll map from client name
+  requestName?: string;
+    client: string; // We'll map from client name
   template: string; // We'll map from template name
   status: string;
   progress: number;
   updated: string;
+  tags?: string[];
 }
 
 export default function Requests() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<RequestModel[]>([]);
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [tagFilter, setTagFilter] = useState('All');
+  const [groupBy, setGroupBy] = useState('None');
 
   useEffect(() => {
     apiClient('/requests').then(data => {
@@ -24,9 +30,9 @@ export default function Requests() {
       console.error(err);
       // fallback mock data if backend fails
       setRequests([
-        { id: '1', client: 'Acme Corp', template: 'Website Onboarding', status: 'In Progress', progress: 60, updated: '2 hours ago' },
-        { id: '2', client: 'Stark Industries', template: 'Brand Assets', status: 'In Progress', progress: 20, updated: '4 days ago' },
-        { id: '3', client: 'Wayne Ent.', template: 'Website Onboarding', status: 'Submitted', progress: 100, updated: '1 day ago' },
+        { id: '1', client: 'Acme Corp', requestName: 'Website Onboarding - Acme Corp', template: 'Website Onboarding', status: 'In Progress', tags: ['Website', 'Q1'], progress: 60, updated: '2 hours ago' },
+        { id: '2', client: 'Stark Industries', requestName: 'Brand Assets - Stark Industries', template: 'Brand Assets', status: 'In Progress', tags: ['Branding'], progress: 20, updated: '4 days ago' },
+        { id: '3', client: 'Wayne Ent.', requestName: 'Website Onboarding - Wayne Ent.', template: 'Website Onboarding', status: 'Submitted', tags: ['Website'], progress: 100, updated: '1 day ago' },
       ]);
     }).finally(() => {
       setLoading(false);
@@ -60,25 +66,57 @@ export default function Requests() {
             </div>
           ) : (
           <>
-          <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row gap-4 items-center bg-white/40">
+          <div className="p-6 border-b border-border/50 flex flex-col md:flex-row gap-4 items-center bg-white/40">
             <div className="relative flex-1 w-full">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input 
                 type="text" 
-                placeholder="Search by client or template..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by request name, client, or template..." 
                 className="w-full pl-10 pr-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all shadow-sm"
               />
             </div>
-            <button className="btn-secondary whitespace-nowrap" onClick={() => alert('Filter opened')}>
-              <Filter size={14} className="mr-2" /> Filter
-            </button>
+            <div className="flex gap-3 w-full md:w-auto overflow-x-auto">
+              <select 
+                value={statusFilter} 
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="All">All Statuses</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Completed">Completed</option>
+              </select>
+              
+              <select 
+                value={tagFilter} 
+                onChange={(e) => setTagFilter(e.target.value)}
+                className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="All">All Tags</option>
+                {Array.from(new Set(requests.flatMap(r => r.tags || []))).map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+
+              <select 
+                value={groupBy} 
+                onChange={(e) => setGroupBy(e.target.value)}
+                className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="None">No Grouping</option>
+                <option value="Client">Group by Client</option>
+                <option value="Template">Group by Template</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-x-auto w-full">
             <table className="min-w-full divide-y divide-border text-left">
               <thead>
                 <tr>
-                  <th className="py-4 pl-6 pr-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Client</th>
+                  <th className="py-4 pl-6 pr-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Request Name</th>
                   <th className="px-3 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Template</th>
                   <th className="px-3 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
                   <th className="px-3 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">Progress</th>
@@ -92,7 +130,7 @@ export default function Requests() {
                     key={req.id} 
                     className="hover:bg-muted/50 cursor-pointer transition-colors"
                   >
-                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">{req.client}</td>
+                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">`n                        <div className="flex flex-col">`n                          <span>{req.requestName}</span>`n                          <span className="text-xs text-muted-foreground font-medium">{req.client}</span>`n                        </div>`n                      </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm font-medium text-muted-foreground">{req.template}</td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm">
                       <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold border ${
