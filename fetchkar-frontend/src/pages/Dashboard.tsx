@@ -46,7 +46,7 @@ export default function Dashboard() {
           <div className="mt-4 flex md:ml-4 md:mt-0">
             <Link
               to="/requests/new"
-              className="btn-primary"
+              className="inline-flex items-center justify-center rounded-full text-sm font-black transition-all bg-gradient-to-br from-[#86efac] to-[#3b82f6] text-white h-14 px-8 shadow-[6px_6px_12px_rgba(163,177,198,0.4),-6px_-6px_12px_rgba(255,255,255,0.9),inset_2px_2px_4px_rgba(255,255,255,0.5),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] transform hover:scale-105 active:scale-95"
             >
               <Plus className="-ml-0.5 mr-1 h-5 w-5" aria-hidden="true" />
               New Request
@@ -59,16 +59,16 @@ export default function Dashboard() {
           {stats.map((item) => (
             <div
               key={item.name}
-              className="relative overflow-hidden glass-card px-6 pb-12 pt-6 group"
+              className="relative overflow-hidden bg-white/70 shadow-[6px_6px_12px_rgba(163,177,198,0.2),-6px_-6px_12px_rgba(255,255,255,0.8)] rounded-[2rem] px-6 py-6 flex items-center gap-6 border-2 border-white"
             >
               <dt>
-                <div className="absolute rounded-xl bg-brand-100 p-3.5 group-hover:bg-accent group-hover:text-white transition-colors">
+                <div className="rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 p-4 shadow-inner flex-shrink-0">
                   <item.icon className="h-6 w-6 text-accent group-hover:text-white transition-colors" aria-hidden="true" />
                 </div>
-                <p className="ml-20 truncate text-sm font-semibold text-muted-foreground uppercase tracking-wider">{item.name}</p>
+                <p className="truncate text-sm font-bold text-slate-500 tracking-tight">{item.name}</p>
               </dt>
-              <dd className="ml-20 flex items-baseline pb-6 sm:pb-7">
-                <p className="text-3xl font-bold text-foreground">{item.value}</p>
+              <dd className="flex items-baseline">
+                <p className="text-4xl font-black text-slate-800">{item.value}</p>
                 <p
                   className={`ml-3 flex items-baseline text-sm font-bold ${
                     item.changeType === 'positive' ? 'text-status-success' : 'text-muted-foreground'
@@ -96,7 +96,7 @@ export default function Dashboard() {
           <div className="flow-root">
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <table className="min-w-full divide-y divide-border">
+                <table className="min-w-full border-separate border-spacing-y-3">
                   <thead>
                     <tr>
                       <th scope="col" className="py-4 pl-6 pr-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -116,10 +116,10 @@ export default function Dashboard() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="">
                     {recentActivity.map((req) => (
-                      <tr key={req.id} className="hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => navigate(`/requests/review/${req.id}`)}>
-                        <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">
+                      <tr key={req.id} className="bg-white/70 shadow-[4px_4px_8px_rgba(163,177,198,0.1),-4px_-4px_8px_rgba(255,255,255,0.8)] rounded-2xl cursor-pointer transition-all hover:scale-[1.01]" onClick={() => navigate(`/requests/review/${req.id}`)}>
+                        <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground rounded-l-2xl">
                           {req.client}
                         </td>
                         <td className="whitespace-nowrap px-3 py-5 text-sm font-medium text-muted-foreground">{req.template}</td>
@@ -140,7 +140,7 @@ export default function Dashboard() {
                              <span className="text-xs font-bold w-8">{req.progress}%</span>
                            </div>
                         </td>
-                        <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm font-bold">
+                        <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm font-bold rounded-r-2xl">
                           <span className="text-accent hover:text-accent-hover transition-colors">
                             Review<span className="sr-only">, {req.client}</span>
                           </span>
@@ -162,7 +162,7 @@ export default function Dashboard() {
               2 Clients
             </span>
           </div>
-          <div className="divide-y divide-border">
+          <div className="">
             {[
               { id: '1', client: 'LexCorp', days: 5, phone: '+919876543210', template: 'Monthly SEO Review' },
               { id: '2', client: 'Stark Industries', days: 3, phone: '+919876543211', template: 'Design Assets' }

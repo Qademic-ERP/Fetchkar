@@ -52,7 +52,7 @@ export default function Requests() {
             <Link to="/requests/bulk" className="bg-white border border-border text-foreground px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-brand-50 transition-colors flex items-center">
               Bulk Send (CSV)
             </Link>
-            <Link to="/requests/new" className="btn-primary">
+            <Link to="/requests/new" className="inline-flex items-center justify-center rounded-[1.5rem] text-sm font-black transition-all bg-gradient-to-br from-[#86efac] to-[#3b82f6] text-white h-12 px-6 shadow-[4px_4px_8px_rgba(163,177,198,0.4),-4px_-4px_8px_rgba(255,255,255,0.9),inset_2px_2px_4px_rgba(255,255,255,0.5),inset_-2px_-2px_4px_rgba(0,0,0,0.1)] transform hover:scale-105 active:scale-95">
               <Plus className="-ml-0.5 mr-1 h-5 w-5" />
               Create Request
             </Link>
@@ -123,14 +123,14 @@ export default function Requests() {
                   <th className="py-4 pl-3 pr-6 text-right text-xs font-bold text-muted-foreground uppercase tracking-wider">Last Updated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="">
                 {requests.map(req => (
                   <tr 
                     onClick={() => navigate(`/requests/review/${req.id}`)} 
                     key={req.id} 
                     className="hover:bg-muted/50 cursor-pointer transition-colors"
                   >
-                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground">
+                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-bold text-foreground rounded-l-2xl">
                         <div className="flex flex-col">
                           <span>{req.requestName}</span>
                           <span className="text-xs text-muted-foreground font-medium">{req.client}</span>
@@ -153,7 +153,7 @@ export default function Requests() {
                          <span className="text-xs font-bold w-8">{req.progress}%</span>
                        </div>
                     </td>
-                    <td className="whitespace-nowrap py-5 pl-3 pr-6 text-sm text-muted-foreground font-medium text-right">{req.updated}</td>
+                    <td className="whitespace-nowrap py-5 pl-3 pr-6 text-sm text-muted-foreground font-medium text-right rounded-r-2xl">{req.updated}</td>
                   </tr>
                 ))}
               </tbody>
